@@ -96,10 +96,89 @@ def index():
     return send_file(HTML_FILE)
 
 
+REFRESH_PAGE = """<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atualizando Dashboard...</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Fira+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Fira Sans', sans-serif;
+    background: #020817; color: #94A3B8;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 100vh; padding: 24px; gap: 0;
+  }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 3px solid #0F172A;
+    border-top-color: #FF6C00;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 28px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  h2 {
+    font-family: 'Fira Code', monospace;
+    color: #FF6C00; font-size: 1rem; font-weight: 600;
+    letter-spacing: 0.5px; margin-bottom: 10px;
+  }
+  p { color: #64748B; font-size: 0.875rem; margin-bottom: 6px; }
+  .countdown {
+    font-family: 'Fira Code', monospace;
+    font-size: 2rem; font-weight: 700;
+    color: #FF6C00; margin: 20px 0 8px;
+    text-shadow: 0 0 20px rgba(255,108,0,0.3);
+  }
+  .bar-track {
+    width: 240px; height: 3px;
+    background: #0F172A; border-radius: 2px; overflow: hidden; margin-top: 24px;
+  }
+  .bar-fill {
+    height: 100%; width: 100%;
+    background: linear-gradient(90deg, #072F58, #FF6C00);
+    border-radius: 2px;
+    animation: shrink 30s linear forwards;
+  }
+  @keyframes shrink { from { width: 100%; } to { width: 0%; } }
+  .back-link {
+    margin-top: 32px;
+    font-size: 0.8rem; color: #334155;
+    text-decoration: none; border-bottom: 1px solid #1E293B;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: #64748B; }
+</style>
+<script>
+  var secs = 30;
+  function tick() {
+    document.getElementById('cd').textContent = secs + 's';
+    if (secs <= 0) { window.location.href = '/'; return; }
+    secs--;
+    setTimeout(tick, 1000);
+  }
+  window.onload = tick;
+</script>
+</head>
+<body>
+  <div class="spinner"></div>
+  <h2>Atualizando dados do Instagram</h2>
+  <p>Coletando métricas e regenerando o dashboard...</p>
+  <div class="countdown" id="cd">30s</div>
+  <p>Redirecionando automaticamente</p>
+  <div class="bar-track"><div class="bar-fill"></div></div>
+  <a href="/" class="back-link">Voltar agora</a>
+</body>
+</html>"""
+
+
 @app.route("/refresh")
 def refresh_manual():
     threading.Thread(target=refresh_data, daemon=True).start()
-    return jsonify({"status": "Atualização iniciada. Recarregue em ~30 segundos."})
+    return REFRESH_PAGE
 
 
 @app.route("/status")
