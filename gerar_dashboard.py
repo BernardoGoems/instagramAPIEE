@@ -217,6 +217,7 @@ def gerar_dashboard(dados_path="dados_instagram.json", output_path="dashboard.ht
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>(function(){{var t=localStorage.getItem('engehall_theme');if(t)document.documentElement.setAttribute('data-theme',t);}})();</script>
 <title>Dashboard Instagram — @{perfil.get('username', 'engehalleletrica')}</title>
+<link rel="icon" type="image/png" href="/static/favicon.png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
