@@ -1,6 +1,12 @@
 import os
+import re
 import threading
 import traceback
+
+
+def _redact(text):
+    """Remove access_token da mensagem de erro antes de exibir."""
+    return re.sub(r'access_token=[^&\s"\']+', 'access_token=***', text)
 
 from flask import Flask, send_file, jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -29,7 +35,7 @@ def refresh_data():
             _last_error = ""
             print("Dashboard atualizado com sucesso.", flush=True)
         except Exception as e:
-            _last_error = traceback.format_exc()
+            _last_error = _redact(traceback.format_exc())
             print(f"Erro ao atualizar dados:\n{_last_error}", flush=True)
 
 
