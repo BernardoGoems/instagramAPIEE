@@ -1357,7 +1357,8 @@ function generateContentIdeas(posts) {{
     return null;
   }}
 
-  const doneIds = new Set(JSON.parse(localStorage.getItem('ideas_done') || '[]'));
+  const doneIds      = new Set(JSON.parse(localStorage.getItem('ideas_done')      || '[]'));
+  const dismissedIds = new Set(JSON.parse(localStorage.getItem('ideas_dismissed') || '[]'));
 
   const avg = arr => arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0;
   const tiposMap = {{}};
@@ -1446,8 +1447,8 @@ function generateContentIdeas(posts) {{
     ...i, match: findMatchingPost(i.keywords)
   }}));
 
-  const active  = ideasWithMatch.filter(i => !doneIds.has(i.id) && !i.match);
-  const covered = ideasWithMatch.filter(i => !doneIds.has(i.id) &&  i.match);
+  const active  = ideasWithMatch.filter(i => !doneIds.has(i.id) && (!i.match || dismissedIds.has(i.id)));
+  const covered = ideasWithMatch.filter(i => !doneIds.has(i.id) &&  i.match && !dismissedIds.has(i.id));
   const done    = ideasWithMatch.filter(i =>  doneIds.has(i.id));
 
   const SVG_CHECK = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
@@ -1484,9 +1485,11 @@ function generateContentIdeas(posts) {{
 
     const ref = state === 'covered' ? refPostHtml(idea.match) : '';
 
-    const btn = isPast
-      ? `<button class="idea-done-btn idea-done-btn--undo" onclick="unmarkIdeaDone('${{idea.id}}')">${{SVG_UNDO}} Remover daqui</button>`
-      : `<button class="idea-done-btn" onclick="markIdeaDone('${{idea.id}}')">${{SVG_CHECK}} Marcar como feito</button>`;
+    const btn = state === 'covered'
+      ? `<button class="idea-done-btn idea-done-btn--undo" onclick="dismissIdea('${{idea.id}}')">${{SVG_UNDO}} Detecção incorreta — voltar para ideias</button>`
+      : state === 'done'
+        ? `<button class="idea-done-btn idea-done-btn--undo" onclick="unmarkIdeaDone('${{idea.id}}')">${{SVG_UNDO}} Remover daqui</button>`
+        : `<button class="idea-done-btn" onclick="markIdeaDone('${{idea.id}}')">${{SVG_CHECK}} Marcar como feito</button>`;
 
     return `<div class="idea-card"${{style}}>
       <div class="idea-category ${{idea.category}}">${{idea.categoryLabel}}</div>
@@ -1529,6 +1532,13 @@ window.unmarkIdeaDone = function(id) {{
   const doneIds = new Set(JSON.parse(localStorage.getItem('ideas_done') || '[]'));
   doneIds.delete(id);
   localStorage.setItem('ideas_done', JSON.stringify([...doneIds]));
+  generateContentIdeas(currentFilteredPosts);
+}};
+
+window.dismissIdea = function(id) {{
+  const dismissedIds = new Set(JSON.parse(localStorage.getItem('ideas_dismissed') || '[]'));
+  dismissedIds.add(id);
+  localStorage.setItem('ideas_dismissed', JSON.stringify([...dismissedIds]));
   generateContentIdeas(currentFilteredPosts);
 }};
 
