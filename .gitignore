@@ -1,0 +1,8 @@
+.env
+dados_instagram.json
+dashboard.html
+__pycache__/
+*.pyc
+*.pyo
+.claude/
+design-system/
